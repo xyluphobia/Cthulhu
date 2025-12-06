@@ -48,7 +48,7 @@ public sealed class Downloader
 
     // Probe
     var (supportsRanges, length, etag, lastModified) = await ProbeAsync(url, cancellationToken);
-    if (!supportsRanges || length is null) { // Single thread download
+    if (!supportsRanges || length is null || connections == 1) { // Single thread download
       Console.WriteLine("Downloading with single stream.");
       await SingleStreamAsync(url, outputPath, cancellationToken, progress);
       return;

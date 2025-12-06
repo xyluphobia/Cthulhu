@@ -16,7 +16,7 @@ if (args.Length == 0) { // Entry
         CliSettingsHandler.SetNewDownloadDirectory(args[i +1]);
         settings = UserSettingsStore.Load();
         break;
-      case "--connections": // Set default max connection count
+      case "--max-connections": // Set default max connection count
         if (i + 1 > args.Length) return; 
         CliSettingsHandler.SetNewConnectionsCount(args[i + 1]);   
         settings = UserSettingsStore.Load();
@@ -56,6 +56,15 @@ if (args[1].ToLower() == "get") { // cthulhu get, initiate get sequence
         if (i + 1 > args.Length) return; 
         outputPath = args[i + 1]; 
         explicitPath = true;
+        break;
+      case "-connections":
+      case "-c":
+        if (i + 1 > args.Length) return; 
+        if (int.TryParse(args[i + 1], out int newConnections)) {
+          connections = newConnections;
+          break;
+        }
+        Console.WriteLine($"Set Connection Count Error: '{args[i + 1]}' is not a valid integer input.");
         break;
     }
   }
