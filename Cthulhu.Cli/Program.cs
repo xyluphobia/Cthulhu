@@ -8,8 +8,29 @@ if (args.Length == 0) { // Entry
   return;
 } else if (args[0].ToLower() != "cthulhu") {
   return;
-} else if (args[1].ToLower() == "get") { // cthulhu get, initiate get sequence
+} else { // Always active args
+  for (int i = 2; i < args.Length; i++) {
+    switch (args[i]) {
+      case "--download-dir": // Set default download directory
+        if (i + 1 > args.Length) return; 
+        CliSettingsHandler.SetNewDownloadDirectory(args[i +1]);
+        settings = UserSettingsStore.Load();
+        break;
+      case "--connections": // Set default max connection count
+        if (i + 1 > args.Length) return; 
+        CliSettingsHandler.SetNewConnectionsCount(args[i + 1]);   
+        settings = UserSettingsStore.Load();
+        break;
+      case "--chunk-size": // Set default chunk size
+        if (i + 1 > args.Length) return;
+        CliSettingsHandler.SetNewChunkSize(args[i + 1]);
+        settings = UserSettingsStore.Load();
+        break;
+    }
+  }
+}
 
+if (args[1].ToLower() == "get") { // cthulhu get, initiate get sequence
   string urlString = args[2];
   if (!Uri.IsWellFormedUriString(urlString, UriKind.Absolute)) {
     Console.WriteLine("Please enter a valid URL.");
@@ -23,10 +44,12 @@ if (args.Length == 0) { // Entry
   long chunkSize = settings.ChunkSizeBytes;
   for (int i = 2; i < args.Length; i++) {
     switch (args[i]) {
+      // Expects -o C:\Users\Downloads\
       case "-output":
       case "-o": // Download directory override
         if (i + 1 > args.Length) return; // if theres no statement following
-        outputPath = args[i + 1]; 
+        outputPath = args[i + 1];
+        if (outputPath[outputPath.Length - 1] != '\\') outputPath += '\\';
         break;
       case "-explicit":
       case "-e": // Explicit download path including file type e.g. -e Users/Download/image.png
@@ -73,23 +96,6 @@ if (args.Length == 0) { // Entry
   Console.WriteLine("\nDone.");
 }
 
-// Always active args
-for (int i = 2; i < args.Length; i++) {
-  switch (args[i]) {
-    case "--download-dir": // Set default download directory
-      if (i + 1 > args.Length) return; 
-      CliSettingsHandler.SetNewDownloadDirectory(args[i +1]);
-      break;
-    case "--connections": // Set default max connection count
-      if (i + 1 > args.Length) return; 
-      CliSettingsHandler.SetNewConnectionsCount(args[i + 1]);   
-      break;
-    case "--chunk-size": // Set default chunk size
-      if (i + 1 > args.Length) return;
-      CliSettingsHandler.SetNewChunkSize(args[i + 1]);
-      break;
-  }
-}
 
 
 

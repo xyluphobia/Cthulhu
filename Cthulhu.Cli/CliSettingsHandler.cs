@@ -14,7 +14,7 @@ public class CliSettingsHandler {
         downloadPath = Console.ReadLine();
       } while (!Directory.Exists(downloadPath));
 
-      settings.DownloadDirectory = downloadPath + downloadPath[downloadPath.Length - 1] == '\\' ? "" : "\\";
+      settings.DownloadDirectory = downloadPath + (downloadPath[downloadPath.Length - 1] == '\\' ? "" : "\\");
       UserSettingsStore.Save(settings);
       Console.WriteLine("Download Path Set.");
     }

@@ -22,6 +22,30 @@ public sealed class Downloader
 
     bool? explicitPath = false
   ){
+    // Format output path to include file name and type
+    if (!explicitPath.HasValue || explicitPath == false) { // Explicit is null or false
+      outputPath = outputPath + Path.GetFileName(url.LocalPath);
+    }
+
+    // If filepath already exists, append version number
+    int fileVer = 1;
+    while (File.Exists(outputPath)) {
+
+      int indexOfFinalDot = outputPath.LastIndexOf('.');
+      if (fileVer > 1) {
+        indexOfFinalDot = outputPath.LastIndexOf($" ({fileVer - 1}).");
+        outputPath = outputPath.Remove(
+            indexOfFinalDot,
+            4 + ((fileVer - 1).ToString().Length) // Adds length based on how much space ver takes up e.g. 10 = 2, 100 = 3
+        ).Insert(indexOfFinalDot, $" ({fileVer}).");
+      }
+      else {
+        outputPath = outputPath.Remove(indexOfFinalDot, 1).Insert(indexOfFinalDot, $" ({fileVer}).");
+      }
+
+      fileVer++;
+    }
+
     // Probe
     var (supportsRanges, length, etag, lastModified) = await ProbeAsync(url, cancellationToken);
     if (!supportsRanges || length is null) { // Single thread download
@@ -210,7 +234,6 @@ public sealed class Downloader
     )) {
       try {
         response.EnsureSuccessStatusCode();
-        string fileName = Path.GetFileName(uri.LocalPath);
         
         Console.WriteLine("File Located Online");
         Stream stream = await response.Content.ReadAsStreamAsync();
@@ -231,16 +254,5 @@ public sealed class Downloader
     } // response.Dispose() is automatically called this way.
   }
 
-  private bool AcceptsParallelConnection(HttpResponseMessage response) {
-    if (response.Headers.TryGetValues("Accept-Ranges", out IEnumerable<string>? acceptRanges)) {
-      if (acceptRanges.First() == "bytes") {
-        Console.WriteLine("Accepts 'bytes' Ranges!");
-        Console.WriteLine(acceptRanges.First());
-        return true;
-      }
-      return false;
-    }
-    return false;
-  }
   */
 
